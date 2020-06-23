@@ -1,8 +1,8 @@
 import * as Biz from '@triones/biz-kernel';
 
 export class CounterForm extends Biz.MarkupView {
-    
-    public checked: boolean = false;
+    public id: string;
+    public checked: boolean;
     public value: number = 0;
 
     public onPlus() {

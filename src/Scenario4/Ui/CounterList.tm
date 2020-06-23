@@ -1,6 +1,6 @@
-<import as="Counter_" from="Scenario2/Ui/CounterForm" />
+<import as="Counter_" from="Scenario4/Ui/CounterForm" />
 <template #default>
-    <dynamic :expand="counters">
+    <dynamic :expand="notDeletedCounters">
         <Counter_ #element :="#element" />
     </dynamic>
     <button @onClick="onAdd">add counter</button>
