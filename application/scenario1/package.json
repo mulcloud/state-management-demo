@@ -1,0 +1,16 @@
+{
+    "service": {
+        "type": "http",
+        "port": 8080,
+        "ui": true
+    },
+    "host": {
+        "type": "webpack",
+        "entry": "Scenario1/Ui"
+    },
+    "boundary": [
+        {
+            "strip": "NOT_UI"
+        }
+    ]
+}

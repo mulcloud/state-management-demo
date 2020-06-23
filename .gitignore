@@ -1,0 +1,13 @@
+/app
+/venv
+/models.json
+/build-info
+/node_modules
+/log
+*.layers
+/dist
+/build
+/dist.tar
+/lib
+/esm
+/stub

@@ -1,0 +1,57 @@
+{
+  "main": "build/src/index.ts",
+  "files": [
+    "src",
+    "lib",
+    "esm",
+    "stub",
+    "triones.json",
+    "tsconfig.json",
+    "migration",
+    "application"
+  ],
+  "lint-staged": {
+    "./src/**/*.{ts,tsx}": "yarn lint"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn lint-staged"
+    }
+  },
+  "version": "0.0.0",
+  "private": true,
+  "name": "@trillion/demo-state-management",
+  "dependencies": {
+    "@triones/biz-platform": ">=0.0.0",
+    "@trillion/io-tri": ">=0.0.0",
+    "@trillion/react-dant": ">=0.0.0",
+    "@trillion/react-router": ">=0.0.0",
+    "@trillion/react-layout": ">=0.0.0",
+    "@trillion/react-modal": ">=0.0.0",
+    "@trillion/react-fields": ">=0.0.0",
+    "@trillion/react-mobile-fields": ">=0.0.0",
+    "@trillion/react-error": ">=0.0.0",
+    "@trillion/react-cmobile": ">=0.0.0",
+    "@trillion/react-upload": ">=0.0.0"
+  },
+  "devDependencies": {
+    "@triones/biz-platform-dev": ">=0.0.0"
+  },
+  "resolutions": {},
+  "scripts": {
+    "lint-fix": "yarn tri-package-builder $PWD lintFix && eslint --fix ./src/ --ext '.ts,.tsx' -c .eslintrc.js  --no-eslintrc",
+    "clean": "chmod -R +w app build venv; rm -rf build/ venv/ app/ publish/ node_modules/.cache lib/ esm/ stub/",
+    "publish-beta": "export GIT_COMMIT=$(git rev-parse HEAD) && export GIT_TAG=$(git describe --tags 2>/dev/null || echo NO_TAG) && export PUBLISH_VERSION=0.0.0-$(git rev-parse --short HEAD) && exec yarn publish-beta-1",
+    "publish-beta-1": "LOG_ENABLED=* venv-build $PWD ${VENV_DIR:=/tmp/venv/$CI_PROJECT_PATH} && cd $VENV_DIR && exec yarn publish-beta-2",
+    "publish-beta-2": "LOG_ENABLED=* yarn build && yarn may-test-cov && exec tt-publish",
+    "test": "LOG_ENABLED=* TRIONES_APP=$PWD/build/src markdown-executor $PWD/test",
+    "test-cov": "echo \"no test\"",
+    "may-test-cov": "if test \"$PUBLISH_TO_CNPM\" != \"false\" ; then yarn test-cov ; fi",
+    "build": "LOG_ENABLED='*,-debug' exec tri-package-builder $PWD build",
+    "build-mon": "LOG_ENABLED='*,-debug' exec tri-package-builder",
+    "start": "LOG_ENABLED=* exec tri-package-builder $PWD start",
+    "debug": "LOG_ENABLED=* exec tri-package-builder $PWD debug",
+    "dist": "LOG_ENABLED=* exec tri-package-builder $PWD dist",
+    "lock-version": "LOG_ENABLED=* exec tri-package-builder $PWD lockVersion"
+  }
+}

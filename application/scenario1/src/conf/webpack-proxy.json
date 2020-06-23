@@ -1,0 +1,6 @@
+{
+    "serverHost": "127.0.0.1",
+    "serverPort": 8000,
+    "clientHost": "0.0.0.0",
+    "clientPort": 8080
+}

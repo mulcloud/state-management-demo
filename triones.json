@@ -1,0 +1,19 @@
+{
+  "name": "@trillion/demo-state-management",
+  "dependencies": {
+    "@triones/biz-platform": ">=0.0.0",
+    "@trillion/io-tri": "beta",
+    "@trillion/react-dant": "beta",
+    "@trillion/react-router": "beta",
+    "@trillion/react-layout": "beta",
+    "@trillion/react-modal": "beta",
+    "@trillion/react-fields": "beta",
+    "@trillion/react-mobile-fields": "beta",
+    "@trillion/react-error": "beta",
+    "@trillion/react-cmobile": "beta",
+    "@trillion/react-upload": "beta"
+  },
+  "devDependencies": {
+    "@triones/biz-platform-dev": ">=0.0.0"
+  }
+}

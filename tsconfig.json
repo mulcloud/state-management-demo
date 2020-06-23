@@ -1,0 +1,22 @@
+{
+    "version": "2.4.2",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@app/*": ["build/src/*"]
+        },
+        "target": "es2018",
+        "strict": true,
+        "jsx": "react",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "types": ["node"],
+        "experimentalDecorators": true,
+        "sourceMap": true,
+        "declaration": true,
+        "strictPropertyInitialization": false,
+        "outDir": "lib"
+    },
+    "include": ["./src/**/*", "./build/src/**/*"],
+    "exclude": []
+}

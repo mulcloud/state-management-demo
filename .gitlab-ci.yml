@@ -1,0 +1,24 @@
+image: hub.chengfayun.net/devops/node:12.14.0-alpine-2
+
+variables:
+    # docker client variables
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_IMAGE_NAME: hub.chengfayun.net/trillion/zhimai-zhimai
+
+services:
+    # docker daemon
+    - docker:dind
+
+stages:
+    - publish
+    - build
+
+publish:
+    stage: publish
+    script:
+        - rm -rf /tmp/venv/zhimai/zhimai
+        - rm -fr /tmp/venv/longqimin/zhimai
+        - docker login hub.chengfayun.net -u "$MEIQIA_HUB_LOGIN" -p "$MEIQIA_HUB_PASSWORD"
+        - yarn global add @triones/tt@beta
+        - yarn publish-beta && cd ${VENV_DIR:=/tmp/venv/$CI_PROJECT_PATH} && yarn dist
