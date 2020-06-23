@@ -1,0 +1,15 @@
+{
+    "service": {
+        "type": "http",
+        "port": 8000
+    },
+    "host": {
+        "type": "nodejs",
+        "entry": "Octopus/Http/Backend"
+    },
+    "boundary": [
+        {
+            "keep": "ALL"
+        }
+    ]
+}
