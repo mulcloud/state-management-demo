@@ -1,9 +1,9 @@
 import * as Biz from '@triones/biz-kernel';
-import { Counter } from '@app/Scenario1/Ui/Counter';
+import { CounterForm } from '@app/Scenario1/Ui/CounterForm';
 
 @Biz.published
 export class SaveCounter extends Biz.Command {
-    public run(counter: Counter) {
-        console.log(`save ${counter.value}`);
+    public run(form: CounterForm) {
+        console.log(`save ${form.value}`);
     }
 }

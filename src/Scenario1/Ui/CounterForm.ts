@@ -4,7 +4,7 @@ import { ReactHost } from '@app/React/Host/ReactHost';
 import { SaveCounter } from '@app/Scenario1/Public/SaveCounter';
 
 @instantiate(ReactHost, { area: 'Scenario1/Ui' })
-export class Counter extends Biz.MarkupView {
+export class CounterForm extends Biz.MarkupView {
     
     public value: number = 0;
 
