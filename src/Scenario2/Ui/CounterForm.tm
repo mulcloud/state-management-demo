@@ -1,7 +1,7 @@
 <template #default>
-    <div>
+    <FieldItem :value="&value">
         {{ id }}
         <Checkbox :checked="&checked"></Checkbox>{{ checked }}
         <button @onClick="onMinus">-</button>{{ value }}<button @onClick="onPlus">+</button>
-    </div>
+    </FieldItem>
 </template>
