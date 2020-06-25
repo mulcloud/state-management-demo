@@ -1,8 +1,8 @@
 import * as Biz from '@triones/biz-kernel';
 
-@Biz.authentic
+@Biz.source(new Biz.GlobalMemStore())
 @Biz.published
-export class Counter3 extends Biz.ActiveRecord {
+export class Counter extends Biz.ActiveRecord {
     public value: number = 0;
 
     @Biz.published

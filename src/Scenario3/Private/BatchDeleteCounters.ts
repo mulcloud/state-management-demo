@@ -1,10 +1,10 @@
 import * as Biz from '@triones/biz-kernel';
-import { Counter3 } from '@app/Scenario3/Public/Counter3';
+import { Counter } from '@app/Scenario3/Private/Counter';
 
 @Biz.published
 export class BatchDeleteCounters extends Biz.Command {
     
-    public run(counters: Counter3[]) {
+    public run(counters: Counter[]) {
         for(const counter of counters) {
             this.scene.delete(counter);
         }

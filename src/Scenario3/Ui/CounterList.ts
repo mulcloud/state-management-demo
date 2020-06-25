@@ -2,29 +2,16 @@ import * as Biz from '@triones/biz-kernel';
 import { CounterForm } from '@app/Scenario3/Ui/CounterForm';
 import { instantiate } from '@triones/tri-package';
 import { ReactHost } from '@app/React/Host/ReactHost';
-import { Counter3 } from '@app/Scenario3/Public/Counter3';
-import { BatchDeleteCounters } from '@app/Scenario3/Public/BatchDeleteCounters';
-import { TrionesContext } from '@app/Io/Tri/TrionesContext';
-import { ShowMeTheToken } from '@app/Scenario3/Public/ShowMeTheToken';
+import { Counter } from '@app/Scenario3/Private/Counter';
+import { BatchDeleteCounters } from '@app/Scenario3/Private/BatchDeleteCounters';
 
 @instantiate(ReactHost, { area: 'Scenario3/Ui' })
 export class CounterList extends Biz.MarkupView {
     
-    public onBegin() {
-        this.autoLogin();
-    }
-
-    private autoLogin() {
-        const trionesContext = this.scene.get(TrionesContext);
-        if (!trionesContext.token) {
-            // never do this in production code
-            trionesContext.login({ token: this.call(ShowMeTheToken) });
-        }
-    }
-
     public get counters() {
-        return this.scene.query(Counter3);
+        return this.scene.query(Counter);
     }
+
     public get hasSelected() {
         for (const counter of this.scene.query(CounterForm)) {
             if (counter.checked) {
@@ -35,7 +22,7 @@ export class CounterList extends Biz.MarkupView {
     }
 
     public onAdd() {
-        this.scene.add(Counter3);
+        this.scene.add(Counter);
     }
 
     public onDelete() {
