@@ -7,5 +7,6 @@
     <dynamic :visible="hasSelected">
         <button @onClick="onDelete">delete selected counters</button>
     </dynamic>
-    <button @onClick="onSave">save</button>
+    <button @onClick="onSave">save to db</button>
+    <button @onClick="onList">list db records</button>
 </template>

@@ -17,6 +17,10 @@ export class CounterForm extends Biz.MarkupView {
         this.value -= 1;
     }
 
+    public get square() {
+        return this.value * this.value;
+    }
+
     public onSave() {
         this.call(SaveCounter, this);
     }
