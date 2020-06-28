@@ -2,6 +2,15 @@
 
 各种需求场景下的状态管理方案
 
+```
+git clone https://git.chengfayun.com/demo/dev
+yarn install
+yarn venv-install
+cd trillion/demo/state-management
+yarn start scenario1
+yarn start main-svc
+```
+
 # 为什么过去状态管理不是问题？
 
 ## 2-tier 架构
