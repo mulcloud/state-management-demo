@@ -1,5 +1,6 @@
 这个例子演示的是 TSM 做为一个传统前端框架的用法。覆盖的状态范围如下图所示
 
+![state](./states.drawio.svg)
 
 
 代码中 ContactForm 承担了 DOM 状态，表单状态，以及 Request 状态三个角色。
