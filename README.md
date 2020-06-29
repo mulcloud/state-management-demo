@@ -2,7 +2,8 @@
 
 各种需求场景下的状态管理方案
 
-```
+```sh
+yarn config set registry http://registry.npm.chengfayun.net
 git clone https://git.chengfayun.com/demo/dev
 yarn install
 yarn venv-install
