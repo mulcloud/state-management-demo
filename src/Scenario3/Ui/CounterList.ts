@@ -5,7 +5,7 @@ import { ReactHost } from '@app/React/Host/ReactHost';
 import { Counter } from '@app/Scenario3/Private/Counter';
 import { BatchDeleteCounters } from '@app/Scenario3/Private/BatchDeleteCounters';
 
-@instantiate(ReactHost, { area: 'Scenario3/Ui' })
+@instantiate(ReactHost, { concurrent: true, LOG_ENABLED: '*' })
 export class CounterList extends Biz.MarkupView {
     
     public get counters() {

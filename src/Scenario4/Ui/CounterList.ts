@@ -4,14 +4,14 @@ import { instantiate } from '@triones/tri-package';
 import { ReactHost } from '@app/React/Host/ReactHost';
 import { Counter } from '@app/Scenario4/Private/Counter';
 
-@instantiate(ReactHost, { area: 'Scenario4/Ui' })
+@instantiate(ReactHost, { concurrent: true })
 export class CounterList extends Biz.MarkupView {
 
     public counters: CounterForm[] = [];
 
     public onBegin() {
         for (const counter of this.scene.query(Counter)) {
-            this.counters.push(this.scene.add(CounterForm, { counter }));
+            this.counters.push(this.create(CounterForm, { counter }));
         }
     }
 
@@ -35,7 +35,7 @@ export class CounterList extends Biz.MarkupView {
     }
 
     public onAdd() {
-        this.counters.push(this.scene.add(CounterForm));
+        this.counters.push(this.create(CounterForm));
     }
 
     public onDelete() {

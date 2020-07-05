@@ -5,7 +5,7 @@ import { ReactHost } from '@app/React/Host/ReactHost';
 import * as Constraint from '@triones/biz-constraint';
 import { Counter } from '@app/Scenario2/Private/Counter';
 
-@instantiate(ReactHost, { area: 'Scenario2/Ui' })
+@instantiate(ReactHost, { concurrent: true })
 export class CounterList extends Biz.MarkupView {
     public counters: CounterForm[] = [];
 
@@ -19,7 +19,7 @@ export class CounterList extends Biz.MarkupView {
     }
 
     public onAdd() {
-        this.counters.push(this.scene.add(CounterForm));
+        this.counters.push(this.create(CounterForm));
     }
 
     public onDelete() {
