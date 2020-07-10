@@ -1,2 +1,5 @@
-<slot :render="children" data="hello" />
-<slot :render="children" data="world" />
+<dynamic :expand="items">
+    <div #element>
+        <slot :render="children" :data="#element"/>
+    </div>
+</dynamic>

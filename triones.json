@@ -13,7 +13,8 @@
     "@trillion/react-mobile-fields": "beta",
     "@trillion/react-error": "beta",
     "@trillion/react-cmobile": "beta",
-    "@trillion/react-upload": "beta"
+    "@trillion/react-upload": "beta",
+    "react-intersection-observer": "^8.26.2"
   },
   "devDependencies": {
     "@triones/biz-platform-dev": ">=0.0.0"
