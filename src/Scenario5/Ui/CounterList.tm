@@ -3,10 +3,6 @@
         <span>loading...</span>
     </fragment>
     <InfiniteScroll>
-        <CounterListPage #children="#page" :="#page" pageSize="5">
-            <div #children="#row">
-                {{ #page.pageNumber }} / {{ #row.data }}
-            </div>
-        </CounterListPage>
+        <CounterListPage #page :="#page" pageSize="5" />
     </InfiniteScroll>
 </Suspense>

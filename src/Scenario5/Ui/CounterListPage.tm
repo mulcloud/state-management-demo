@@ -1,5 +1,6 @@
+<slot :render="sentinel" />
 <dynamic :expand="items">
     <div #element>
-        <slot :render="children" :data="#element"/>
+        {{ pageNumber }} / {{ #element }}
     </div>
 </dynamic>

@@ -1,53 +1,77 @@
 import * as React from 'react';
-import { useInView } from 'react-intersection-observer';
 import { useOperation } from '@triones/markup-shim-react';
 import { tlog } from '@triones/tlog';
 
 const stalk = tlog.tag('infs', 'stalk');
 
 interface Props {
-    children: (scope: {
-        pageNumber: number;
-        pageLoaded: (args: { pageNumber: number; hasMore: boolean }) => void;
-    }) => React.ReactNode;
+    page: (args: { pageNumber: number; sentinel?: React.ReactNode }) => React.ReactNode;
 }
 
-export function InfiniteScroll(props: Props) {
-    const [currentPage, setCurrentPage] = React.useState(1);
-    const loaded = React.useRef({ pageNumber: 0, hasMore: true });
-    const pageLoaded = React.useCallback((args: { pageNumber: number; hasMore: boolean }) => {
-        loaded.current = args;
-    }, []);
+export function InfiniteScroll({ page: renderPage }: Props) {
+    const model = useInfiniteScrollModel();
+    const sentinel = <Sentinel model={model} />;
     const pages = [];
-    for (let i = 0; i < currentPage; i++) {
-        pages.push(<React.Fragment key={i}>{props.children({ pageNumber: i, pageLoaded })}</React.Fragment>);
+    for (let i = 0; i < model.currentPage; i++) {
+        let page: React.ReactNode;
+        if (i === model.currentPage - 1) {
+            page = renderPage({ pageNumber: i, sentinel });
+        } else {
+            page = renderPage({ pageNumber: i });
+        }
+        pages.push(<React.Fragment key={i}>{page}</React.Fragment>);
     }
     return (
         <div>
             {pages}
-            {loaded.current.hasMore ? (
-                <Sentinel currentPage={currentPage} setCurrentPage={setCurrentPage} />
-            ) : (
-                <div>reached end</div>
-            )}
+            <LoadingMore model={model} />
         </div>
     );
 }
 
-function Sentinel({ currentPage, setCurrentPage }: { currentPage: number; setCurrentPage: (next: number) => void }) {
-    const [startOperation, isLoading] = useOperation('sentinel in view, trigger load more', { timeoutMs: 30000 });
-    const [ref, inView] = useInView();
+function useInfiniteScrollModel() {
+    const [currentPage, setCurrentPage] = React.useState(2);
+    const modelRef = React.useRef({
+        currentPage,
+        nextPage() {
+            setCurrentPage(currentPage => currentPage + 1);
+        },
+        sentinelObserver: undefined as (() => void) | undefined,
+    });
+    modelRef.current.currentPage = currentPage;
+    return modelRef.current;
+}
+
+function Sentinel({ model }: { model: ReturnType<typeof useInfiniteScrollModel> }) {
+    const ref = React.useRef<HTMLDivElement>(null);
     React.useEffect(() => {
-        if (inView) {
-            stalk`sentinel in view, trigger load more`();
+        const intersectionObserver = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting) {
+                    model.sentinelObserver && model.sentinelObserver();
+                }
+            },
+            { threshold: 1 },
+        );
+        intersectionObserver.observe(ref.current!);
+        return () => {
+            if (ref.current) {
+                intersectionObserver.unobserve(ref.current!);
+            }
+        };
+    }, []);
+    return <div ref={ref} style={{ width: '1px', height: '1px' }} />;
+}
+
+function LoadingMore({ model }: { model: ReturnType<typeof useInfiniteScrollModel> }) {
+    const [startOperation, isLoading] = useOperation('load more', { timeoutMs: 30000 });
+    React.useEffect(() => {
+        model.sentinelObserver = () => {
             startOperation(() => {
-                setCurrentPage(currentPage + 1);
+                stalk`load more`();
+                model.nextPage();
             });
-        }
-    }, [inView]);
-    return (
-        <div ref={ref}>
-            {isLoading ? <div style={{ position: 'sticky', top: 0 }}>loading ${new Date().toString()}...</div> : null}
-        </div>
-    );
+        };
+    }, []);
+    return isLoading ? <div>loading more...</div> : null;
 }
