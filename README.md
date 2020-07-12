@@ -18,11 +18,11 @@ yarn start main-svc
 1. [父子表单以及后端校验](src/Scenario2)
 1. [界面绑定数据库](src/Scenario3)
 1. [批量操作型界面](src/Scenario4)
+1. [无限滚动](src/Scenario5)
 
 # 待提供的最佳写法
 
 1. 分页表格
-1. 无限滚动
 1. 超出组件生命周期的前端状态
 1. 按钮操作提示操作中/加载中
 1. 出错提示

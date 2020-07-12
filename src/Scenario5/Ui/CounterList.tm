@@ -3,6 +3,8 @@
         <span>loading...</span>
     </fragment>
     <InfiniteScroll>
-        <CounterListPage #page :="#page" pageSize="5" />
+        <CounterListPage #page :="#page">
+            <attr #pageSize>20</attr>
+        </CounterListPage>
     </InfiniteScroll>
 </Suspense>

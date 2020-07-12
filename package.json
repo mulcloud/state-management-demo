@@ -34,8 +34,7 @@
     "@trillion/react-mobile-fields": ">=0.0.0",
     "@trillion/react-error": ">=0.0.0",
     "@trillion/react-cmobile": ">=0.0.0",
-    "@trillion/react-upload": ">=0.0.0",
-    "react-intersection-observer": "^8.26.2"
+    "@trillion/react-upload": ">=0.0.0"
   },
   "devDependencies": {
     "@triones/biz-platform-dev": ">=0.0.0"
