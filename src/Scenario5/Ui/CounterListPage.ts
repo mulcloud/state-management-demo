@@ -14,4 +14,12 @@ export class CounterListPage extends Biz.MarkupView {
         }
         return items;
     }
+
+    public get hasMore() {
+        return this.pageNumber < 4;
+    }
+
+    public get reachedEnd() {
+        return !this.hasMore;
+    }
 }
