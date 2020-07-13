@@ -1,10 +1,7 @@
 <Suspense>
-    <fragment #fallback>
-        <span>loading...</span>
-    </fragment>
+    <span #fallback>loading...</span>
     <InfiniteScroll>
-        <CounterListPage #page :="#page">
-            <attr #pageSize>20</attr>
-        </CounterListPage>
+        <CounterListPage #page :="#page" />
+        <div #loadingMore>正在加载...</div>
     </InfiniteScroll>
 </Suspense>

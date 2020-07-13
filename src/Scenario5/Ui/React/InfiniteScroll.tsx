@@ -1,14 +1,15 @@
 import * as React from 'react';
-import { useOperation } from '@triones/markup-shim-react';
+import { useOperation, Slotlike, renderSlot } from '@triones/markup-shim-react';
 import { tlog } from '@triones/tlog';
 
 const stalk = tlog.tag('infs', 'stalk');
 
 interface Props {
+    loadingMore?: Slotlike;
     page: (args: { pageNumber: number; sentinel?: React.ReactNode }) => React.ReactNode;
 }
 
-export function InfiniteScroll({ page: renderPage }: Props) {
+export function InfiniteScroll({ page: renderPage, loadingMore }: Props) {
     const model = useInfiniteScrollModel();
     const sentinel = <Sentinel model={model} />;
     const pages = [];
@@ -24,7 +25,7 @@ export function InfiniteScroll({ page: renderPage }: Props) {
     return (
         <div>
             {pages}
-            <LoadingMore model={model} />
+            <LoadingMore model={model} loadingMore={loadingMore} />
         </div>
     );
 }
@@ -63,7 +64,7 @@ function Sentinel({ model }: { model: ReturnType<typeof useInfiniteScrollModel> 
     return <div ref={ref} style={{ width: '1px', height: '1px' }} />;
 }
 
-function LoadingMore({ model }: { model: ReturnType<typeof useInfiniteScrollModel> }) {
+function LoadingMore({ model, loadingMore }: { model: ReturnType<typeof useInfiniteScrollModel>, loadingMore?: Slotlike }): React.ReactElement | null {
     const [startOperation, isLoading] = useOperation('load more', { timeoutMs: 30000 });
     React.useEffect(() => {
         model.sentinelObserver = () => {
@@ -73,5 +74,11 @@ function LoadingMore({ model }: { model: ReturnType<typeof useInfiniteScrollMode
             });
         };
     }, []);
-    return isLoading ? <div>loading more...</div> : null;
+    if (!isLoading) {
+        return null;
+    }
+    if (loadingMore) {
+        return renderSlot(loadingMore);
+    }
+    return <div>loading more...</div>;
 }

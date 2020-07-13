@@ -4,7 +4,7 @@ import { Counter } from '@app/Scenario5/Private/Counter';
 
 export class CounterListPage extends Biz.MarkupView {
     public readonly pageNumber: number;
-    public readonly pageSize: number;
+    public readonly pageSize?: number = 20;
     @Biz.prop({ transient: true })
     public readonly sentinel: React.ReactNode;
     public counters: Counter[];
@@ -17,11 +17,10 @@ export class CounterListPage extends Biz.MarkupView {
     @Biz.published
     private queryCounters() {
         this.scene.sleep(1500);
-        const offset = this.pageNumber * this.pageSize;
         const subset = Biz.subset(Counter);
         return this.scene.query(subset, {
             orderBys: [subset.orderBy('id')],
-            offset: offset,
+            offset: this.pageNumber * this.pageSize!,
             limit: this.pageSize,
         });
     }
