@@ -1,17 +1,16 @@
 # 简单表单
 
-这个例子演示的是 TSM 做为一个传统前端框架的用法。覆盖的状态范围如下图所示
+这个例子实现了如下功能
 
-![state](./states.drawio.svg)
+* 前端表单，收集到用户的输入
+* 表单的输入会触发界面的部分更新
+* 后端提供 rpc 接口，并提交表单到后端
 
+使用 TSM 相对于用 Vue + Java，有如下收益
 
-代码中 ContactForm 承担了 DOM 状态，表单状态，以及 Request 状态三个角色。
+# 对写法的强约束
 
-在这个案例里，突出体现了如下几个特性
-
-# 强约束的框架
-
-TSM 的目标是完全接管系统中各个部位的状态，是一个强约束的框架。顶层的目录结构
+TSM 的目标是完全接管系统中各个部位的状态，是一个强约束的框架。这种对写法的强约束使得人员可以很快找到对应的代码在哪里，并切方便人员在不同小组之间的流动。顶层的目录结构
 
 * app 编译出来的前后端代码，和 application 目录一一对应
 * application 你定义的这个系统分多少个 app，至少应该包括前端一个 app，后端一个 app。同时一些固定的 conf 可以放在 app 的 src/conf 下
@@ -31,7 +30,7 @@ TSM 的目标是完全接管系统中各个部位的状态，是一个强约束�
 TSM 是一个把前后端代码放在一个大工程下的写法。Ui 对应的后端代码应该放得更靠近一些，以体现两者之间的密切协作关系。
 RoR 的顶层目录不是业务领域，而是 Controller / Model 这样的业务无关的分类。
 
-# 表单状态绑定
+# 业务逻辑与样式分离
 
 和 Vue 一样，提供了对表单状态的直接支持。*.tm 文件和 *.ts 文件一一对应，呈绑定关系。
 
@@ -40,48 +39,34 @@ RoR 的顶层目录不是业务领域，而是 Controller / Model 这样的业�
 
 和 Vue 不同的地方在于，TSM 规定了 tm 可以写什么，ts 可以写什么，而不是随意发挥。在 tm 文件中无法写表达式，如果需要绑定的数据需要经过 transform，需要把对应的逻辑写到 ts 里。
 
-
 ```ts
 public get square() {
     return this.value * this.value;
 }
 ```
 
-# 前后端通信
+这种写法的坏处显然是不如 vue 自由，好处是可以保持 tm 里没有任何业务逻辑。这样我们做单元测试的时候，可以直接构造一个 ts 里的 MarkkupView 实例，就能对页面上所有的业务逻辑进行测试。
+
+# 简化前后端通信
 
 前端把用户在表单里填写的内容，通过 RPC 接口传递给后端。因为 TSM 把前后端代码囊括在了一个项目里，所以在前后端通信这个应用场景下可以节省大量传统上在两侧的工程里需要写的声明定义。
 
-* `this.call(SaveCounter, this)` 后端写一个 Biz.Command，前端就可以 this.call
-* `public run(form: CounterForm)` 无需额外定义 *.proto 协议文件，或者定义 DTO 对象。直接拿前端的表单定义当网络传输协议
+```ts
+import * as Biz from '@triones/biz-kernel';
+import { CounterForm } from '@app/Scenario1/Ui/CounterForm';
 
-后端服务启动使用命令 yarn start main-svc，其中 main-svc 对应了 application/main-svc/package.json，定义如下
-
-```json
-{
-    "service": {
-        "type": "http",
-        "port": 8000
-    },
-    "host": {
-        "type": "nodejs",
-        "entry": "Octopus/Http/Backend"
-    },
-    "boundary": [
-        {
-            "keep": "ALL"
-        }
-    ]
+@Biz.published
+export class SaveCounter extends Biz.Command {
+    public run(form: CounterForm) {
+        console.log(`save ${JSON.stringify(form)}`);
+    }
 }
 ```
 
-这里 Octopus 是 triones 使用的默认 RPC 协议的名字。之所以前后端知道使用这个 RPC 协议，是因为我们在 app 的入口点上做了声明。前端的声明
+后端只需要定义一个 Command，就提供了一个前端可以 call 的 RPC 接口。同时可以直接把前端表单做为 RPC 协议的结构体。
 
-```ts
-@instantiate(ReactHost, { area: 'Scenario1/Ui' })
-export class CounterForm extends Biz.MarkupView {
-```
-
-这里引用的 ReactHost 就声明了使用 React 宿主环境来执行当前这个组件，默认的 React 宿主代码里使用的就是 TSM 提供的 Octopus 协议。后端的入口点在上面所示的 package.json 里定义为 Octopus/Http/Backend，对应的代码是在 triones.json 里引入进来的
+* 简化了 RPC 的样板代码
+* 前端可以把自己的本地状态直接传给后端，而不用手工复制一份
 
 # 总结
 
