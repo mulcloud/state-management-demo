@@ -33,6 +33,21 @@ public onAdd() {
 
 add 之后，绑定的 counters 查询会重新执行一遍。之所以 add 之后可以做到自动刷新，就是因为前面写 counters 这个 getter 时建立的绑定关系。这样做的收益就是事实上前端表单“状态”是没有的，相当于直接数据库状态绑定到了DOM上。这样对于程序员来说就少一份需要管理的状态。
 
+# 远程数据自动缓存
+
+Angular 的 async pipe 可以达到类似的异步数据流绑定效果，但是 TSM 比 Angular 的实现要更好用一些。例如
+
+```html
+<h3>
+  Found {{ (movies$ | async)?.total }} Results
+</h3>
+<app-movies [movies]="movies$ | async" />
+```
+
+如果这么用 async pipe，实际上会触发 movies$ 的两次计算。详情参见：https://blog.lacolaco.net/2020/03/angular-app-reactiveness-en/
+
+而 TSM 则不会，所有的 getter 都是默认缓存的，只要求值了一次，依赖不变更就不会触发重新计算。
+
 # 兄弟组件通信不再是麻烦的问题
 
 当没有勾选的时候，delete按钮不出现。勾选了之后，delete 按钮才出现。这个需求本质上是要求两个状态保持一致。这个需求直接用 React 组件来实现之所以难做是因为涉及到兄弟组件的通信问题。经典的解决办法是把状态上提到公共的父组件上，由父组件重渲染来实现兄弟组件的联动。而 TSM 允许我们把这样的两个状态之间的关系直接用一个简单的 getter 来表达
