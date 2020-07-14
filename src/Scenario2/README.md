@@ -1,19 +1,23 @@
 # 父子表单以及后端校验
 
-这个例子演示了更复杂的前端父子表单，以及如何在后端进行数据校验并回显错误。覆盖的状态范围如下图所示：
+这个例子实现了如下功能：
 
-![state](./states.drawio.svg)
+* 前端动态构建的父子表单
+* 选择框状态与按钮联动
+* 提交父子表单到后端，由后端完成数据校验，并把错误回显到界面
+* 查询后端持久化的数据
 
-代码中的
+# 父子表单就是组件的组合
 
-* CounterForm / CounterList 承担了 DOM状态，表单状态，Request状态 以及 Response 状态四个角色
-* Counter 承担了数据库状态和 Response 状态的角色
+父子表单不需要用特殊的语法来表单，也就是和组装普通组件一样进行组合。
 
-在这个案例里，突出体现了如下几个特性
+```html
+<dynamic :expand="counters">
+    <Counter_ #element :="#element" />
+</dynamic>
+```
 
-# 前端状态建模
-
-所谓父子表单，复杂表单，其实就是在前端的内存持有了一个对象图。在这个例子里 CounterList 就是这个对象图的根，contacts 字段保存了一个 CounterForm 的数组。数据结构如下
+子表单的状态声明在父组件上，由父组件往下传递，这个传递的语法是 `:="#element"`，代表“全绑定”
 
 ```ts
 export class CounterList extends Biz.MarkupView {
@@ -21,42 +25,36 @@ export class CounterList extends Biz.MarkupView {
 }
 ```
 
-表单界面要做的事情就是把这个数据结构通过 DOM 呈现给用户，然后让用户来操作这个数据结构。比如说用户可以新增一条数据
+添加一个子表单只需要修改这个数组，添加一个元素就可以了：
 
 ```ts
-    public onAdd() {
-        this.counters.push(this.scene.add(CounterForm));
-    }
+public onAdd() {
+    this.counters.push(this.scene.add(CounterForm));
+}
 ```
 
-新增的数据会自动绑定到 DOM 上
+这种写法的核心收益是可以把一个父子组件的状态全部都收到一个地方来管理。相比 React 组件的默认状态管理，子组件的状态是子组件内部私有的，父组件很难获取得到。
 
-```html
-    <dynamic :expand="counters">
-        <Counter_ #element :="#element" />
-    </dynamic>
-```
+# 在后端“修改”前端界面
 
-这里用 `:=` 的语法，实现了对一个子表单的状态全绑定。也就是子表单的状态都是从父表单赋予的。这里要特别强调的是，这个 CounterList，以及其上的 counters 不是一个独立的前端 store，它们和界面仍然是绑定的关系。否则在前端就会有两份状态，一份在 store 里，一份在组件上，从而造成需要两份状态保持同步。这个是 TSM 很重要的一个理念，叫做 Ui as Database，界面状态就是数据本身，从而减少掉一份需要额外维护的状态。
+用 React + Java 来写表单的后端校验，往往需要定义一个 DTO 来描述前端的表单结构。后端完成校验之后，要返回另外一个 DTO 来描述每个字段的错误。然后前端 React 还需要把这个 DTO 的结果更新到全局 store 里，最后更新每个组件的本地状态上。这个过程中需要定义重复的结构体，以及重复的数据复制。
 
-# 后端数据校验
-
-CounterList 同时也承担了前后端之间数据交换协议的角色。在点 save 按钮的时候，onSave 方法是一个 rpc 接口，会自动往后端传当前的表单，也就是 CounterList。同时 onSave 函数处理完之后，CounterList 又会回传到界面上。
+在我们这个例子里，事情就要简单得多。CounterList 同时也承担了前后端之间数据交换协议的角色。在点 save 按钮的时候，onSave 方法是一个 rpc 接口，会自动往后端传当前的表单，也就是 CounterList。同时 onSave 函数处理完之后，CounterList 又会回传到界面上。
 
 ```ts
-    @Biz.command({ runAt: 'server' })
-    @Biz.published
-    public onSave() {
-        for (const form of this.counters) {
-            Constraint.clearValidationResults(form);
-            if (form.value > 5) {
-                Constraint.reportViolation(form, 'value', { message: 'too big'});
-            } else {
-                console.log(`save ${form.value}`);
-                this.scene.add(Counter, { value: form.value });
-            }
+@Biz.command({ runAt: 'server' })
+@Biz.published
+public onSave() {
+    for (const form of this.counters) {
+        Constraint.clearValidationResults(form);
+        if (form.value > 5) {
+            Constraint.reportViolation(form, 'value', { message: 'too big'});
+        } else {
+            console.log(`save ${form.value}`);
+            this.scene.add(Counter, { value: form.value });
         }
     }
+}
 ```
 
 值得一提的是 Biz.command 和 Biz.Command 的区别。这两种都是写 command 的方式，小写的 command 是一个方法，而大写的 Command 是一个类，但是干的活是一样的。方法会把所在的对象 this 自动做为一个隐藏参数，在 rpc 调用的时候传递。一般来说，如果一个命令与界面的关系更近，我们会把它写成一个 MarkupView 上的方法。如果这个命令与数据库存储更接近，就会把它写成一个独立的类。因为上面添加了 runAt server，所以这个 command 虽然写在了 Ui 里，但其实是在服务端运行的。
@@ -64,16 +62,20 @@ CounterList 同时也承担了前后端之间数据交换协议的角色。在�
 数据校验的结果不仅仅是一个 error message，而是要具体标记到字段级别的。所以如果用传统的写法来做，validate 这个后端 rpc 接口，需要一个很复杂的数据结构来承担 request，又要额外定义一个带一堆 error 字段的 response 做为数据结构返回到前端。在 TSM 里，这些 request 和 response 就不需要重复定义了，我们直接把 Ui 表单当 rpc 接口协议来用。每个表单字段都可以用 Constraint.reportViolation 来标记这个字段遇到的错误。在例子中， value 这个字段就会有一个 value_ERROR 字段。
 
 ```html
-    <FieldItem :value="&value">
-        ...
-    </FieldItem>
+<FieldItem :value="&value">
+    {{ id }}
+    <Checkbox :checked="&checked"></Checkbox>{{ checked }}
+    <button @onClick="onMinus">-</button>{{ value }}<button @onClick="onPlus">+</button>
+</FieldItem>
 ```
 
 通过上面这个 Ui 组件，把 value_ERROR 的内容给回显到了界面上。
 
 同时因为前后端都是同一个编程语言，甚至定义在了同一个 class 里。onSave 方法可以抽取 validate 方法出来，被前后端共用。这样后端做的数据校验可以在前端提前做一遍，让用户可以得到更及时的响应。
 
-# 持久化状态
+# 从前端“直接”查询ORM
+
+状态管理当然包括数据库 ORM。TSM 提供了增删改查的完整封装。而且这个 ORM 还延申到了前端，可以在前端直接查询数据库里的数据。
 
 虽然我们让 CounterList / CounterForm 承担了很多角色，但是 CounterForm 本身并不适合做为数据库的持久化模型。只有及其简单的业务下，持久化的状态和界面状态有一一对应关系，绝大多数情况下，这两份状态所需要的字段都是不一样的。对于高度重复的简单场合，后面在 PCP 里，我们有基于代码生成的解决方案来自动用 Counter 生成 CounterForm。
 
@@ -89,11 +91,11 @@ export class Counter extends Biz.ActiveRecord {
 插入到数据库里必须在后端做，前端是没有权利不经过后端来添加数据的。this.scene.add(Counter) 可以看成 new Counter() 的另外一种写法。因为 Counter 定义了自己的 source，所以会自动被保存到 GlobalMemStore 里。
 
 ```ts
-    public onList() {
-        for (const counter of this.scene.query(Counter)) {
-            console.log(counter.value);
-        }
+public onList() {
+    for (const counter of this.scene.query(Counter)) {
+        console.log(counter.value);
     }
+}
 ```
 
 虽然前端不能插入数据，但是前端可以不经过后端开接口就直接查询持久化数据。this.scene.query 类似于 GraphQL，就是一个通用的数据查询接口。这样后端只需要专注于控制数据的写入，数据的读取以及展示都是前端自己可以掌控的。你可能会担心这样的开放接口会不会有权限问题。这个在后面会有专门的权限介绍。
@@ -108,4 +110,4 @@ export class Counter extends Biz.ActiveRecord {
 
 # 总结
 
-这个案例的主旨精神是复杂表单无非就是一个对象图。这个对象图在前端可以用来渲染Ui，用来被用户编辑，在后端也可以用来校验。TSM 让你可以把这个对象图在各种场合下直接使用，而不需要在渲染或者RPC的时候平行复制出一份状态来。
+在 TSM 里，没有组件状态，表单状态，数据库状态的区别。所有的不同技术实现的状态，都暴露出统一的 API。可以让前后端之间用更低的成本进行配合，减少沟通上的翻译成本。
