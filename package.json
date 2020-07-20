@@ -24,7 +24,6 @@
   "dependencies": {
     "@triones/biz-platform": ">=0.0.0",
     "@trillion/io-tri": ">=0.0.0",
-    "@trillion/security-auth": ">=0.0.0",
     "@trillion/react-host-server": ">=0.0.0",
     "@trillion/react-dant": ">=0.0.0",
     "@trillion/react-router": ">=0.0.0",

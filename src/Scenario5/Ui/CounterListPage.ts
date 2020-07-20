@@ -17,9 +17,8 @@ export class CounterListPage extends Biz.MarkupView {
     @Biz.published
     private queryCounters() {
         this.scene.sleep(1500);
-        const subset = Biz.subset(Counter);
-        return this.scene.query(subset, {
-            orderBys: [subset.orderBy('id')],
+        return this.scene.query(Biz.subset(Counter), {
+            orderBys: [['id', 'DESC']],
             offset: this.pageNumber * this.pageSize!,
             limit: this.pageSize,
         });
