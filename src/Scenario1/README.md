@@ -68,6 +68,28 @@ export class SaveCounter extends Biz.Command {
 * 简化了 RPC 的样板代码
 * 前端可以把自己的本地状态直接传给后端，而不用手工复制一份
 
+# 跟踪 eventHandler 是否正在执行
+
+React 的 event handler 是同步执行的。但是业务上的事件处理经常是异步的逻辑，需要在后端处理成功失败之后再做一些后续的操作。当我们需要跟踪这个异步过程的时候，就需要手工去设置这个按钮是执行中，还是已经执行完成了。TSM 中 event handler 是由框架来异步执行的，所以这个异步执行的过程是自动被跟踪的。只需要标记一下 `@eventHandler`
+
+```ts
+@eventHandler({useBusy: true})
+public onSave() {
+    this.call(SaveCounter, this);
+}
+```
+
+这里就会添加一个叫 `onSave_busy` 的变量，然后渲染 UI 的时候就可以根据这个变量来显示不同的按钮状态
+
+```html
+<button @onClick="onSave" :disabled="onSave_busy">
+    <dynamic :slot="onSave_busy">
+        <span #true>Saving...</span>
+        <span #false>Save</span>
+    </dynamic>
+</button>
+```
+
 # 总结
 
 使用 Vue / GraphQL 等技术搭好脚手架也能达到同样的效果。TSM 相比之下节省了你的技术团队自己摸索这个最佳组合方案的时间，也统一了项目代码的风格，方便人员的换组。

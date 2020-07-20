@@ -2,6 +2,7 @@ import * as Biz from '@triones/biz-kernel';
 import { instantiate } from '@triones/tri-package';
 import { ReactHost } from '@app/React/Host/ReactHost';
 import { SaveCounter } from '@app/Scenario1/Private/SaveCounter';
+import { eventHandler } from '@triones/markup-shim-react';
 
 @instantiate(ReactHost, { disableSatellite: true, concurrent: true })
 export class CounterForm extends Biz.MarkupView {
@@ -21,6 +22,7 @@ export class CounterForm extends Biz.MarkupView {
         return this.value * this.value;
     }
 
+    @eventHandler({useBusy: true})
     public onSave() {
         this.call(SaveCounter, this);
     }
