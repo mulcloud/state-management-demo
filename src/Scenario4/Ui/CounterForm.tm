@@ -1,3 +1,4 @@
+<import from="@app/React/Ui/Dant/Checkbox"/>
 <template #default>
     <div>
         {{ id }}

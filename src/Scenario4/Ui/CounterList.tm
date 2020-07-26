@@ -1,4 +1,4 @@
-<import as="Counter_" from="Scenario4/Ui/CounterForm" />
+<import from="@app/Scenario4/Ui/CounterForm" as="Counter_"/>
 <template #default>
     <dynamic :expand="notDeletedCounters">
         <Counter_ #element :="#element" />

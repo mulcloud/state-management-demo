@@ -1,3 +1,4 @@
+<import from="@app/React/Ui/Dant/Input"/>
 <template #default>
     Name: <Input :value="&name" />
     <div>
