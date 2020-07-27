@@ -50,10 +50,7 @@ export class Tower extends Biz.MarkupView {
 
     @Biz.unmanaged
     public removeDisk(disk: Disk) {
-        const pos = this.disks.indexOf(disk);
-        if (pos !== -1) {
-            this.disks.splice(pos, 1);
-        }
+        this.disks = this.disks.filter(e => e !== disk);
     }
 
     private static getY(elem: HTMLDivElement, dragOverArgs: { dragging: HTMLElement, delta: BoxDelta }) {

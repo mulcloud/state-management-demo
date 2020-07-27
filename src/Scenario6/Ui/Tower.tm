@@ -20,7 +20,6 @@
             border-radius: 10px;
             margin-bottom: 10px;
             min-width: 20em;
-            cursor: pointer;
             line-height: 80px;
             text-align: center;
         }

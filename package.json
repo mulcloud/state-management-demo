@@ -34,7 +34,7 @@
     "@trillion/react-error": ">=0.0.0",
     "@trillion/react-cmobile": ">=0.0.0",
     "@trillion/react-upload": ">=0.0.0",
-    "framer-motion": "^2.0.1"
+    "framer-motion": "^2.1.4"
   },
   "devDependencies": {
     "@triones/biz-platform-dev": ">=0.0.0"

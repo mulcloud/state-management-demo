@@ -13,7 +13,7 @@
     "@trillion/react-error": "beta",
     "@trillion/react-cmobile": "beta",
     "@trillion/react-upload": "beta",
-    "framer-motion": "^2.0.1"
+    "framer-motion": "^2.1.4"
   },
   "devDependencies": {
     "@triones/biz-platform-dev": ">=0.0.0"
