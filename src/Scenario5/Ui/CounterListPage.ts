@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Counter } from '@app/Scenario5/Private/Counter';
 
 export class CounterListPage extends Biz.MarkupView {
+    
     public readonly pageNumber: number;
     public readonly pageSize?: number = 20;
     @Biz.prop({ transient: true })
@@ -25,6 +26,9 @@ export class CounterListPage extends Biz.MarkupView {
     }
 
     public get hasMore() {
+        // requested: this.pageSize
+        // response: this.counters.length
+        // if response is less than requested, we know end reached
         return this.counters.length === this.pageSize;
     }
 

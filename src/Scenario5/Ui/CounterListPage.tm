@@ -1,4 +1,6 @@
 <template #default>
+    <!-- place sentinel here to trigger data load on show -->
+    <!-- this gives the data loading more time as user reading through the last page takes time -->
     <dynamic :visible="hasMore">
         <slot :render="sentinel" />
     </dynamic>

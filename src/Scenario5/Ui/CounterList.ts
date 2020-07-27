@@ -7,12 +7,12 @@ import { SystemUser } from '@app/Scenario5/Private/SystemUser';
 @instantiate(ReactHost, { concurrent: true, LOG_ENABLED: '*' })
 export class CounterList extends Biz.MarkupView {
     public onBegin() {
-        this.initData();
+        this.initMockData();
     }
 
     @Biz.command({ runAt: 'server' })
     @Biz.published
-    private initData() {
+    private initMockData() {
         if (this.scene.query(Counter).length > 0) {
             return;
         }
