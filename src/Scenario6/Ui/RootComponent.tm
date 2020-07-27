@@ -1,8 +1,11 @@
+<import component="AnimateSharedLayout" from="framer-motion"/>
 <import from="@app/Scenario6/Ui/Tower"/>
 <template #default>
     <RootComponentBox>
-        <Tower/>
-        <Tower/>
+        <AnimateSharedLayout>
+            <Tower/>
+            <Tower/>
+        </AnimateSharedLayout>
     </RootComponentBox>
 </template>
 <style>

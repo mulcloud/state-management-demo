@@ -1,14 +1,14 @@
 <import from="@app/Scenario6/Ui/Disk"/>
 <template #default>
-    <TowerBox :ref="ref">
+    <TowerBox :ref="ref" :data-view-class="#default.constructor.name" :data-view-id="#default.id">
         <dynamic :expand="disks">
-            <Disk #element :="#element" :tower="#default"/>
+            <Disk #element :="#element" />
         </dynamic>
     </TowerBox>
 </template>
 <style>
     div.TowerBox {
-        background: #cdcdcd;
+        background: #e6e6e6;
         padding: 1em;
         margin: 0;
         flex-direction: column;
