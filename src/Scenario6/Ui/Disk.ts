@@ -9,20 +9,24 @@ export class Disk extends Biz.MarkupView {
     public height: string;
     @Biz.prop({ transient: true })
     public ref: React.MutableRefObject<HTMLDivElement | null> = React.createRef();
-    public zIndex = 1;
     public parent: Tower;
     public cursor = 'pointer';
+    public isDragging: boolean;
     private originalParent: Tower;
     private originalParentDisks: Disk[];
 
     @Biz.unmanaged
+    public get zIndex() {
+        return this.isDragging ? 3: 1;
+    }
+
+    @Biz.unmanaged
     public onDragStart() {
-        if (this.zIndex === 3) {
+        if (this.isDragging) {
             return;
         }
         this.originalParent = this.parent;
         this.originalParentDisks = Array.from(this.parent.disks) as any;
-        this.zIndex = 3;
     }
 
     @Biz.unmanaged
@@ -34,13 +38,12 @@ export class Disk extends Biz.MarkupView {
             }
             this.originalParent.disks = this.originalParentDisks as any;
         }
-        this.zIndex = 1;
         this.cursor = 'pointer';
     }
 
     @Biz.unmanaged
     public onViewportBoxUpdate(viewportBox: AxisBox2D, delta: BoxDelta) {
-        if (this.zIndex === 1) {
+        if (!this.isDragging) {
             return;
         }
         const diskElem = this.ref.current;
