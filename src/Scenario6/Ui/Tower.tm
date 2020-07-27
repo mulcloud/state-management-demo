@@ -1,6 +1,6 @@
 <import from="@app/Scenario6/Ui/Disk"/>
 <template #default>
-    <TowerBox :data-view-class="#default.constructor.name" :data-view-id="#default.id">
+    <TowerBox data-model-class="Scenario6/Ui/Tower" :data-model-id="#default.id">
         <dynamic :expand="disks">
             <Disk #element :="#element" />
         </dynamic>

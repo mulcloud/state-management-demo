@@ -14,9 +14,19 @@ export class Tower extends Biz.MarkupView {
             this.create(Disk, { background: '#7700FF', height: '4em', parent: this as any }),
         ];
     } 
+
+    @Biz.unmanaged
+    public onDragEnter(args: { target: HTMLElement, dragging: HTMLElement, draggingModel: Disk, delta: BoxDelta }) {
+        args.draggingModel.cursor = 'pointer'
+    }
+
+    @Biz.unmanaged
+    public onDragExit(args: { target: HTMLElement, dragging: HTMLElement, draggingModel: Disk, delta: BoxDelta }) {
+        args.draggingModel.cursor = 'not-allowed'
+    }
     
     @Biz.unmanaged
-    public onDragOver(args: { target: HTMLElement, dragging: HTMLElement, delta: BoxDelta }) {
+    public onDragOver(args: { target: HTMLElement, dragging: HTMLElement, draggingModel: Disk, delta: BoxDelta }) {
         const elements = Array.from(args.target.children);
         if (!elements.includes(args.dragging)) {
             elements.push(args.dragging);
@@ -27,16 +37,16 @@ export class Tower extends Biz.MarkupView {
         const sortedDisks = [];
         let changed = false;
         for (const [i, elem] of sorted.entries()) {
-            if (!this.disks[i] || this.disks[i].id !== elem.dataset.viewId!) {
+            if (!this.disks[i] || this.disks[i].id !== elem.dataset.modelId!) {
                 changed = true;
             }
-            sortedDisks.push(Biz.getSceneMemEntity(this.scene, Disk, elem.dataset.viewId!)!);
+            sortedDisks.push(Biz.getSceneMemEntity(this.scene, Disk, elem.dataset.modelId!)!);
         }
         if (!changed) {
             return false;
         }
         this.disks = sortedDisks;
-        const draggingDisk = Biz.getSceneMemEntity(this.scene, Disk, args.dragging.dataset.viewId!)!;
+        const draggingDisk = Biz.getSceneMemEntity(this.scene, Disk, args.dragging.dataset.modelId!)!;
         if (draggingDisk.parent !== this as any) {
             draggingDisk.parent.removeDisk(draggingDisk);
             draggingDisk.parent = this as any;
