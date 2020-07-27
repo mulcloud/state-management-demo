@@ -54,7 +54,7 @@ export const AnimatedDiv = React.forwardRef((props: Props, ref) => {
                     targetModel.onDragEnter({ target, dragging, draggingModel, delta });
                 }
             }
-            if (draggingOver.current) {
+            if (targetModel) {
                 (draggingOver.current as any).onDragOver({ target, dragging, draggingModel, delta });
             }
         }

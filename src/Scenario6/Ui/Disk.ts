@@ -5,11 +5,11 @@ export class Disk extends Biz.MarkupView {
 
     public background: string;
     public height: string;
-    public parent: Tower;
     public cursor = 'pointer';
     public isDragging: boolean;
-    private originalParent: Tower;
-    private originalParentDisks: Disk[];
+    public parent: Tower;
+    // private originalParent: Tower;
+    // private originalParentDisks: Disk[];
 
     @Biz.unmanaged
     public get zIndex() {
@@ -18,22 +18,22 @@ export class Disk extends Biz.MarkupView {
 
     @Biz.unmanaged
     public onDragStart() {
-        if (this.isDragging) {
-            return;
-        }
-        this.originalParent = this.parent;
-        this.originalParentDisks = Array.from(this.parent.disks) as any;
+        // if (this.isDragging) {
+        //     return;
+        // }
+        // this.originalParent = this.parent;
+        // this.originalParentDisks = Array.from(this.parent.disks) as any;
     }
 
     @Biz.unmanaged
     public onDragEnd() {
-        if (this.cursor === 'not-allowed') {
-            if (this.parent !== this.originalParent) {
-                this.parent.removeDisk(this as any);
-                this.parent = this.originalParent;
-            }
-            this.originalParent.disks = this.originalParentDisks as any;
-        }
+        // if (this.cursor === 'not-allowed') {
+        //     if (this.parent !== this.originalParent) {
+        //         this.parent.removeDisk(this as any);
+        //         this.parent = this.originalParent;
+        //     }
+        //     this.originalParent.disks = this.originalParentDisks as any;
+        // }
         this.cursor = 'pointer';
     }
 

@@ -8,16 +8,21 @@ export class Tower extends Biz.MarkupView {
 
     public onBegin() {
         this.disks = [
-            this.create(Disk, { background: '#FF008C', height: '3em', parent: this as any }),
-            this.create(Disk, { background: '#D309E1', height: '5em', parent: this as any }),
-            this.create(Disk, { background: '#9C1AFF', height: '6em', parent: this as any }),
-            this.create(Disk, { background: '#7700FF', height: '4em', parent: this as any }),
+            this.create(Disk, { background: '#FF008C', height: '3em' }),
+            this.create(Disk, { background: '#D309E1', height: '5em' }),
+            this.create(Disk, { background: '#9C1AFF', height: '6em' }),
+            this.create(Disk, { background: '#7700FF', height: '4em' }),
         ];
     } 
 
     @Biz.unmanaged
     public onDragEnter(args: { target: HTMLElement, dragging: HTMLElement, draggingModel: Disk, delta: BoxDelta }) {
-        args.draggingModel.cursor = 'pointer'
+        const disk = args.draggingModel;
+        disk.cursor = 'pointer'
+        if (disk.parent && disk.parent !== this as any) {
+            disk.parent.removeDisk(disk);
+        }
+        disk.parent = this as any;
     }
 
     @Biz.unmanaged
@@ -42,16 +47,9 @@ export class Tower extends Biz.MarkupView {
             }
             sortedDisks.push(Biz.getSceneMemEntity(this.scene, Disk, elem.dataset.modelId!)!);
         }
-        if (!changed) {
-            return false;
+        if (changed) {
+            this.disks = sortedDisks;
         }
-        this.disks = sortedDisks;
-        const draggingDisk = Biz.getSceneMemEntity(this.scene, Disk, args.dragging.dataset.modelId!)!;
-        if (draggingDisk.parent !== this as any) {
-            draggingDisk.parent.removeDisk(draggingDisk);
-            draggingDisk.parent = this as any;
-        }
-        return true;
     }
 
     @Biz.unmanaged
