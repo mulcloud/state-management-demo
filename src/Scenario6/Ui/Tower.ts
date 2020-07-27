@@ -1,16 +1,12 @@
 import * as Biz from '@triones/biz-kernel';
-import * as React from 'react';
 import { Disk } from '@app/Scenario6/Ui/Disk';
 import { BoxDelta } from 'framer-motion';
 
 export class Tower extends Biz.MarkupView {
-    @Biz.prop({ transient: true })
-    public ref: React.MutableRefObject<HTMLDivElement | null> = React.createRef();
-    @Biz.prop({ transient: true })
+
     public disks: Disk[] = [];
-    private diskTable: Map<string, Disk>;
+
     public onBegin() {
-        this.diskTable = Biz.getSceneMemTable(this.scene, Disk);
         this.disks = [
             this.create(Disk, { background: '#FF008C', height: '3em', parent: this as any }),
             this.create(Disk, { background: '#D309E1', height: '5em', parent: this as any }),
@@ -20,8 +16,8 @@ export class Tower extends Biz.MarkupView {
     } 
     
     @Biz.unmanaged
-    public onDragOver(args: { dragging: HTMLElement, delta: BoxDelta }) {
-        const elements = Array.from(this.ref.current!.children);
+    public onDragOver(args: { target: HTMLElement, dragging: HTMLElement, delta: BoxDelta }) {
+        const elements = Array.from(args.target.children);
         if (!elements.includes(args.dragging)) {
             elements.push(args.dragging);
         }
@@ -34,13 +30,13 @@ export class Tower extends Biz.MarkupView {
             if (!this.disks[i] || this.disks[i].id !== elem.dataset.viewId!) {
                 changed = true;
             }
-            sortedDisks.push(this.diskTable.get(elem.dataset.viewId!)!);
+            sortedDisks.push(Biz.getSceneMemEntity(this.scene, Disk, elem.dataset.viewId!)!);
         }
         if (!changed) {
             return false;
         }
         this.disks = sortedDisks;
-        const draggingDisk = this.diskTable.get(args.dragging.dataset.viewId!)!;
+        const draggingDisk = Biz.getSceneMemEntity(this.scene, Disk, args.dragging.dataset.viewId!)!;
         if (draggingDisk.parent !== this as any) {
             draggingDisk.parent.removeDisk(draggingDisk);
             draggingDisk.parent = this as any;

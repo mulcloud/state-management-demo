@@ -2,26 +2,18 @@ import * as Biz from '@triones/biz-kernel';
 import { AxisBox2D, BoxDelta } from 'framer-motion';
 import * as React from 'react';
 import { Tower } from '@app/Scenario6/Ui/Tower';
-import { RootComponent } from '@app/Scenario6/Ui/RootComponent';
 
 export class Disk extends Biz.MarkupView {
+
     public background: string;
     public height: string;
     @Biz.prop({ transient: true })
     public ref: React.MutableRefObject<HTMLDivElement | null> = React.createRef();
     public zIndex = 1;
-    private towerTable: Map<string, Tower>;
-    @Biz.prop({ transient: true })
     public parent: Tower;
     public cursor = 'pointer';
-    private rootComponent: RootComponent;
     private originalParent: Tower;
     private originalParentDisks: Disk[];
-
-    public onBegin() {
-        this.towerTable = Biz.getSceneMemTable(this.scene, Tower);
-        this.rootComponent = this.scene.load(RootComponent);
-    }
 
     @Biz.unmanaged
     public onDragStart() {
@@ -41,7 +33,6 @@ export class Disk extends Biz.MarkupView {
                 this.parent = this.originalParent;
             }
             this.originalParent.disks = this.originalParentDisks as any;
-            this.rootComponent.refresh();
         }
         this.zIndex = 1;
         this.cursor = 'pointer';
@@ -64,11 +55,9 @@ export class Disk extends Biz.MarkupView {
             this.cursor = 'not-allowed';
             return;
         }
-        const tower = this.towerTable.get(towerElem.dataset.viewId!)!;
+        const tower = Biz.getSceneMemEntity(this.scene, Tower, towerElem.dataset.viewId!)!;
         this.cursor = 'pointer';
-        if (tower.onDragOver({ dragging: diskElem, delta })) {
-            this.rootComponent.refresh();
-        }
+        tower.onDragOver({ target: towerElem, dragging: diskElem, delta })
     }
 
     private static findTowerElement(x: number, y: number) {
