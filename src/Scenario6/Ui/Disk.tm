@@ -1,6 +1,6 @@
 <import from="@app/Scenario6/Ui/React/AnimatedDiv"/>
 <template #default>
-    <AnimatedDiv :ref="ref" className="disk" layout drag="y" 
+    <AnimatedDiv :ref="ref" className="disk" layout drag
         @onDragStart="onDragStart" @onDragEnd="onDragEnd" @onViewportBoxUpdate="onViewportBoxUpdate"
         :data-view-class="viewClass" :data-view-id="#default.id">
         <attr #dragConstraint>{ "top":0, "bottom":0 }</attr>

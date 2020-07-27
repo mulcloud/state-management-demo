@@ -1,11 +1,8 @@
 import * as Biz from '@triones/biz-kernel';
 import * as React from 'react';
-import { instantiate } from '@triones/tri-package';
-import { ReactHost } from '@app/React/Host/ReactHost';
 import { Disk } from '@app/Scenario6/Ui/Disk';
 import { BoxDelta } from 'framer-motion';
 
-@instantiate(ReactHost, { concurrent: true, disableSatellite: true })
 export class Tower extends Biz.MarkupView {
     @Biz.prop({ transient: true })
     public ref: React.MutableRefObject<HTMLDivElement | null> = React.createRef();

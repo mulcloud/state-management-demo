@@ -2,17 +2,14 @@
 <template #default>
     <TowerBox :ref="ref">
         <dynamic :expand="disks">
-            <Disk #element :="#element" />
+            <Disk #element :="#element" :tower="#default"/>
         </dynamic>
     </TowerBox>
 </template>
 <style>
     div.TowerBox {
-        width: 100vw;
-        height: 100vh;
-        background: white;
-        overflow: hidden;
-        padding: 0;
+        background: #cdcdcd;
+        padding: 1em;
         margin: 0;
         flex-direction: column;
         display: flex;
@@ -26,7 +23,6 @@
             cursor: pointer;
             line-height: 80px;
             text-align: center;
-            position: relative;
         }
     }
 </style>

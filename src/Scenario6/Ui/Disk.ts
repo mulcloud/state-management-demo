@@ -9,11 +9,7 @@ export class Disk extends Biz.MarkupView {
     @Biz.prop({ transient: true })
     public ref: React.MutableRefObject<HTMLDivElement | null> = React.createRef();
     public zIndex = 1;
-    private tower: Tower;
-
-    public onBegin() {
-        this.tower = this.scene.load(Tower);
-    }
+    public readonly tower: Tower;
 
     @Biz.unmanaged
     public onDragStart() {
