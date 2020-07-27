@@ -1,12 +1,9 @@
-<import component="AnimateSharedLayout" from="framer-motion"/>
 <import from="@app/Scenario6/Ui/Disk"/>
 <template #default>
-    <TowerBox>
-        <AnimateSharedLayout>
-            <dynamic :expand="disks">
-                <Disk #element :="#element" />
-            </dynamic>
-        </AnimateSharedLayout>
+    <TowerBox :ref="ref">
+        <dynamic :expand="disks">
+            <Disk #element :="#element" />
+        </dynamic>
     </TowerBox>
 </template>
 <style>
@@ -21,7 +18,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        
+
         & > .disk {
             border-radius: 10px;
             margin-bottom: 10px;
