@@ -6,6 +6,11 @@ import { onDragOver, onDragEnter, onDragExit } from './React/AnimatedBox';
 export class Tower extends Biz.MarkupView {
 
     public disks: Disk[] = [];
+    
+    public static shouldSkipRender() {
+        // required to show the animation
+        return false;
+    }
 
     public onBegin() {
         this.disks = [
@@ -65,10 +70,5 @@ export class Tower extends Biz.MarkupView {
         }
         // the middle
         return elem.offsetTop + elem.offsetHeight / 2;
-    }
-    
-    public static shouldSkipRender() {
-        // required to show the animation
-        return false;
     }
 }

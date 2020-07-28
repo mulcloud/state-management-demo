@@ -11,6 +11,11 @@ export class Disk extends Biz.MarkupView {
     // private originalParent: Tower;
     // private originalParentDisks: Disk[];
 
+    public static shouldSkipRender() {
+        // required to show the animation
+        return false;
+    }
+
     @Biz.unmanaged
     public get zIndex() {
         return this.isDragging ? 3: 1;
@@ -32,10 +37,5 @@ export class Disk extends Biz.MarkupView {
         //     }
         //     this.originalParent.disks = this.originalParentDisks as any;
         // }
-    }
-
-    public static shouldSkipRender() {
-        // required to show the animation
-        return false;
     }
 }
