@@ -1,7 +1,7 @@
 import * as Biz from '@triones/biz-kernel';
 import { Disk } from '@app/Scenario6/Ui/Disk';
 import { BoxDelta } from 'framer-motion';
-import { onDragOver, onDragEnter, onDragExit } from './React/AnimatedDiv';
+import { onDragOver, onDragEnter, onDragExit } from './React/AnimatedBox';
 
 export class Tower extends Biz.MarkupView {
 

@@ -1,6 +1,6 @@
 import * as Biz from '@triones/biz-kernel';
 import { Tower } from '@app/Scenario6/Ui/Tower';
-import { onDragStart, onDragEnd } from './React/AnimatedDiv';
+import { onDragStart, onDragEnd } from './React/AnimatedBox';
 
 export class Disk extends Biz.MarkupView {
 

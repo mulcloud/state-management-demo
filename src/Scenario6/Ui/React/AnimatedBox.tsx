@@ -2,14 +2,17 @@ import { motion, BoxDelta } from 'framer-motion';
 import * as React from 'react';
 import { BindingState, useBindingState, SceneContext } from '@triones/markup-shim-react';
 import * as Biz from '@triones/biz-kernel';
+import styled from 'styled-components';
 
 const MotionDiv = motion.div;
+const styledComponents = new Map<string, any>();
 
 type Props = {
     isDragging?: BindingState<boolean>;
     droppableModelClass?: string;
     model?: Biz.Entity;
     style?: React.CSSProperties;
+    staticStyle?: string;
 } & Parameters<typeof MotionDiv>[0];
 
 type Droppable = {
@@ -24,11 +27,11 @@ type Dragging = {
 
 export type onDragStart = Props['onDragStart'];
 export type onDragEnd = Props['onDragEnd'];
-export type onDragExit = (args: { dragging: Dragging, droppable: Droppable }) => void;
-export type onDragEnter = (args: { dragging: Dragging, droppable: Droppable }) => void;
-export type onDragOver = (args: { dragging: Dragging, droppable: Droppable, delta: BoxDelta }) => void;
+export type onDragExit = (args: { dragging: Dragging; droppable: Droppable }) => void;
+export type onDragEnter = (args: { dragging: Dragging; droppable: Droppable }) => void;
+export type onDragOver = (args: { dragging: Dragging; droppable: Droppable; delta: BoxDelta }) => void;
 
-export const AnimatedDiv = React.forwardRef((props: Props, ref) => {
+export const AnimatedBox = React.forwardRef((props: Props, ref) => {
     const [isDragging, setIsDragging] = useBindingState(props.isDragging);
     const scene = React.useContext(SceneContext);
     const [draggingOver, setDraggingOver] = React.useState<Droppable>();
@@ -42,13 +45,15 @@ export const AnimatedDiv = React.forwardRef((props: Props, ref) => {
         droppableModelClass,
         onViewportBoxUpdate: _onViewportBoxUpdate,
         model,
+        staticStyle,
         style,
-        ...remaingProps
+        ...remainingProps
     } = props;
     if (model) {
-        Reflect.set(remaingProps, 'data-model-class', Biz.getQualifiedName(Biz.Entity.classOf(model)));
-        Reflect.set(remaingProps, 'data-model-id', model.id);
-        remaingProps.layoutId = model.id;
+        const modelClass = Biz.getQualifiedName(Biz.Entity.classOf(model));
+        Reflect.set(remainingProps, 'data-model-class', modelClass);
+        Reflect.set(remainingProps, 'data-model-id', model.id);
+        remainingProps.layoutId = `${modelClass}:${model.id}`;
     }
     let onViewportBoxUpdate = _onViewportBoxUpdate;
     if (droppableModelClass) {
@@ -88,29 +93,51 @@ export const AnimatedDiv = React.forwardRef((props: Props, ref) => {
     if (isDragging) {
         cursor = draggingOver ? 'pointer' : 'not-allowed';
     }
+    let Component = MotionDiv;
+    if (staticStyle) {
+        Component = getStyledComponent(MotionDiv, staticStyle);
+    }
     return (
-        <MotionDiv
+        <Component
             ref={ref as any}
             style={{ ...style, cursor }}
             onViewportBoxUpdate={onViewportBoxUpdate}
-            onDragStart={(event, info) => {
-                if (onDragStart && !isDragging) {
-                    onDragStart(event, info);
-                }
-                setIsDragging(true);
-            }}
-            onDragEnd={(event, info) => {
-                setIsDragging(false);
-                setDraggingOver(undefined);
-                if (onDragEnd) {
-                    onDragEnd(event, info);
-                }
-            }}
-            {...remaingProps}
+            onDragStart={
+                props.drag
+                    ? (event, info) => {
+                          if (onDragStart && !isDragging) {
+                              onDragStart(event, info);
+                          }
+                          setIsDragging(true);
+                      }
+                    : undefined
+            }
+            onDragEnd={
+                props.drag
+                    ? (event, info) => {
+                          setIsDragging(false);
+                          setDraggingOver(undefined);
+                          if (onDragEnd) {
+                              onDragEnd(event, info);
+                          }
+                      }
+                    : undefined
+            }
+            {...remainingProps}
         />
     );
 });
 
+function getStyledComponent<C>(comp: C, staticStyle: string): C {
+    let styledComponent = styledComponents.get(staticStyle);
+    if (styledComponent) {
+        return styledComponent as C;
+    }
+    const arr = [staticStyle] as any;
+    arr.raw = [staticStyle];
+    styledComponents.set(staticStyle, (styledComponent = styled(comp as any)(arr)));
+    return styledComponent as C;
+}
 
 function findDroppable(scene: Biz.Scene, x: number, y: number, droppableModelClass: string): Droppable | undefined {
     const element = findDroppableElement(x, y, droppableModelClass);
