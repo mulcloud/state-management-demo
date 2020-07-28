@@ -1,8 +1,6 @@
 <import from="@app/Scenario6/Ui/React/AnimatedBox"/>
 <template #default>
-    <AnimatedBox :isDragging="&isDragging" layout drag droppableModelClass="Scenario6/Ui/Tower"
-        @onDragStart="onDragStart" @onDragEnd="onDragEnd"
-        :model="#default">
+    <AnimatedBox layout drag :isDragging="&isDragging" droppableModelClass="Scenario6/Ui/Tower" :model="#default">
         <attr #dragConstraint>{ "top":0, "bottom":0 }</attr>
         <attr #dragElastic>1</attr>
         <attr #style :background="background" :height="height" :zIndex="zIndex" />

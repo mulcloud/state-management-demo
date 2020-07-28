@@ -1,7 +1,7 @@
 <import from="@app/Scenario6/Ui/React/Box"/>
 <import from="@app/Scenario6/Ui/Disk"/>
 <template #default>
-    <Box data-model-class="Scenario6/Ui/Tower" :data-model-id="#default.id">
+    <Box :model="#default">
         <attr #staticStyle>
             `
             background: #e6e6e6;
