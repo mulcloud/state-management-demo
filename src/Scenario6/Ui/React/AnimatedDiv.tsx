@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, BoxDelta } from 'framer-motion';
 import * as React from 'react';
 import { BindingState, useBindingState, SceneContext } from '@triones/markup-shim-react';
 import * as Biz from '@triones/biz-kernel';
@@ -7,26 +7,51 @@ const MotionDiv = motion.div;
 
 type Props = {
     isDragging?: BindingState<boolean>;
-    droppableTarget?: string;
+    droppableModelClass?: string;
     model?: Biz.Entity;
+    style?: React.CSSProperties;
 } & Parameters<typeof MotionDiv>[0];
+
+type Droppable = {
+    element: HTMLElement;
+    model: Biz.Entity;
+};
+
+type Dragging = {
+    element: HTMLElement;
+    model: Biz.Entity;
+};
+
+export type onDragStart = Props['onDragStart'];
+export type onDragEnd = Props['onDragEnd'];
+export type onDragExit = (args: { dragging: Dragging, droppable: Droppable }) => void;
+export type onDragEnter = (args: { dragging: Dragging, droppable: Droppable }) => void;
+export type onDragOver = (args: { dragging: Dragging, droppable: Droppable, delta: BoxDelta }) => void;
 
 export const AnimatedDiv = React.forwardRef((props: Props, ref) => {
     const [isDragging, setIsDragging] = useBindingState(props.isDragging);
     const scene = React.useContext(SceneContext);
-    const draggingOver = React.useRef<Biz.Entity>();
+    const [draggingOver, setDraggingOver] = React.useState<Droppable>();
     const myRef = React.useRef();
     if (!ref) {
         ref = myRef;
     }
-    const { onDragStart, onDragEnd, droppableTarget, onViewportBoxUpdate: _onViewportBoxUpdate, model, ...remaingProps } = props;
+    const {
+        onDragStart,
+        onDragEnd,
+        droppableModelClass,
+        onViewportBoxUpdate: _onViewportBoxUpdate,
+        model,
+        style,
+        ...remaingProps
+    } = props;
     if (model) {
         Reflect.set(remaingProps, 'data-model-class', Biz.getQualifiedName(Biz.Entity.classOf(model)));
         Reflect.set(remaingProps, 'data-model-id', model.id);
         remaingProps.layoutId = model.id;
     }
     let onViewportBoxUpdate = _onViewportBoxUpdate;
-    if (droppableTarget) {
+    if (droppableModelClass) {
         onViewportBoxUpdate = (viewportBox, delta) => {
             if (_onViewportBoxUpdate) {
                 _onViewportBoxUpdate(viewportBox, delta);
@@ -34,43 +59,49 @@ export const AnimatedDiv = React.forwardRef((props: Props, ref) => {
             if (!isDragging) {
                 return;
             }
-            const dragging = (ref as React.MutableRefObject<any>).current;
-            if (!dragging) {
+            const draggingElement = (ref as React.MutableRefObject<any>).current;
+            if (!draggingElement) {
                 return;
             }
-            const draggingModel = getModel(scene, dragging);
-            const target = findDroppableTarget(
-                dragging.offsetLeft + dragging.offsetWidth / 2 + delta.x.translate,
-                dragging.offsetTop + dragging.offsetHeight / 2 + delta.y.translate,
-                droppableTarget
+            const dragging: Dragging = { element: draggingElement, model: getModel(scene, draggingElement) };
+            const droppable = findDroppable(
+                scene,
+                draggingElement.offsetLeft + draggingElement.offsetWidth / 2 + delta.x.translate,
+                draggingElement.offsetTop + draggingElement.offsetHeight / 2 + delta.y.translate,
+                droppableModelClass,
             );
-            const targetModel = getModel(scene, target);
-            if (draggingOver.current !== targetModel) {
-                if (draggingOver.current) {
-                    (draggingOver.current as any).onDragExit({ target, dragging, draggingModel, delta });
+            if (draggingOver?.model !== droppable?.model) {
+                if (draggingOver?.model) {
+                    (draggingOver.model as any).onDragExit({ droppable, dragging });
                 }
-                draggingOver.current = targetModel;
-                if (targetModel) {
-                    targetModel.onDragEnter({ target, dragging, draggingModel, delta });
+                setDraggingOver(droppable);
+                if (droppable?.model) {
+                    (droppable.model as any).onDragEnter({ droppable, dragging });
                 }
             }
-            if (targetModel) {
-                (draggingOver.current as any).onDragOver({ target, dragging, draggingModel, delta });
+            if (droppable?.model) {
+                (droppable.model as any).onDragOver.call(droppable.model, { droppable, dragging, delta });
             }
-        }
+        };
+    }
+    let cursor = props.drag ? 'pointer' : undefined;
+    if (isDragging) {
+        cursor = draggingOver ? 'pointer' : 'not-allowed';
     }
     return (
         <MotionDiv
             ref={ref as any}
+            style={{ ...style, cursor }}
             onViewportBoxUpdate={onViewportBoxUpdate}
             onDragStart={(event, info) => {
-                if (onDragStart) {
+                if (onDragStart && !isDragging) {
                     onDragStart(event, info);
                 }
                 setIsDragging(true);
             }}
             onDragEnd={(event, info) => {
                 setIsDragging(false);
+                setDraggingOver(undefined);
                 if (onDragEnd) {
                     onDragEnd(event, info);
                 }
@@ -80,6 +111,16 @@ export const AnimatedDiv = React.forwardRef((props: Props, ref) => {
     );
 });
 
+
+function findDroppable(scene: Biz.Scene, x: number, y: number, droppableModelClass: string): Droppable | undefined {
+    const element = findDroppableElement(x, y, droppableModelClass);
+    const model = getModel(scene, element);
+    if (element && model) {
+        return { element, model };
+    }
+    return undefined;
+}
+
 function getModel(scene: Biz.Scene, target: HTMLDivElement | undefined) {
     if (target && target.dataset.modelClass && target.dataset.modelId) {
         return Biz.getSceneMemEntity(scene, Biz.getClass(target.dataset.modelClass), target.dataset.modelId);
@@ -87,10 +128,10 @@ function getModel(scene: Biz.Scene, target: HTMLDivElement | undefined) {
     return undefined;
 }
 
-function findDroppableTarget(x: number, y: number, droppableTarget: string) {
+function findDroppableElement(x: number, y: number, droppableModelClass: string) {
     const elements = window.document.elementsFromPoint(x, y) as HTMLDivElement[];
     for (const element of elements) {
-        if (element.dataset.modelClass === droppableTarget) {
+        if (element.dataset.modelClass === droppableModelClass) {
             return element;
         }
     }

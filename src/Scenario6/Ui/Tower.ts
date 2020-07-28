@@ -1,6 +1,7 @@
 import * as Biz from '@triones/biz-kernel';
 import { Disk } from '@app/Scenario6/Ui/Disk';
 import { BoxDelta } from 'framer-motion';
+import { onDragOver, onDragEnter, onDragExit } from './React/AnimatedDiv';
 
 export class Tower extends Biz.MarkupView {
 
@@ -15,29 +16,24 @@ export class Tower extends Biz.MarkupView {
         ];
     } 
 
-    @Biz.unmanaged
-    public onDragEnter(args: { target: HTMLElement, dragging: HTMLElement, draggingModel: Disk, delta: BoxDelta }) {
-        const disk = args.draggingModel;
-        disk.cursor = 'pointer'
+    public onDragEnter: onDragEnter = function(this: Tower, { dragging }) {
+        const disk = dragging.model as Disk;
         if (disk.parent && disk.parent !== this as any) {
             disk.parent.removeDisk(disk);
         }
         disk.parent = this as any;
     }
 
-    @Biz.unmanaged
-    public onDragExit(args: { target: HTMLElement, dragging: HTMLElement, draggingModel: Disk, delta: BoxDelta }) {
-        args.draggingModel.cursor = 'not-allowed'
+    public onDragExit: onDragExit = function() {
     }
     
-    @Biz.unmanaged
-    public onDragOver(args: { target: HTMLElement, dragging: HTMLElement, draggingModel: Disk, delta: BoxDelta }) {
-        const elements = Array.from(args.target.children);
-        if (!elements.includes(args.dragging)) {
-            elements.push(args.dragging);
+    public onDragOver: onDragOver = function(this: Tower, { dragging, droppable, delta }) {
+        const unsorted = Array.from(droppable.element.children);
+        if (!unsorted.includes(dragging.element)) {
+            unsorted.push(dragging.element);
         }
-        const sorted = (elements as HTMLDivElement[]).sort((a, b) => {
-            return Tower.getY(a, args) - Tower.getY(b, args);
+        const sorted = (unsorted as HTMLDivElement[]).sort((a, b) => {
+            return Tower.getY(a, dragging.element, delta) - Tower.getY(b, dragging.element, delta);
         });
         const sortedDisks = [];
         let changed = false;
@@ -57,14 +53,14 @@ export class Tower extends Biz.MarkupView {
         this.disks = this.disks.filter(e => e !== disk);
     }
 
-    private static getY(elem: HTMLDivElement, dragOverArgs: { dragging: HTMLElement, delta: BoxDelta }) {
-        if (elem === dragOverArgs.dragging) {
-            if (dragOverArgs.delta.y.translate > 0) {
+    private static getY(elem: HTMLElement, draggingElement: HTMLElement, delta: BoxDelta) {
+        if (elem === draggingElement) {
+            if (delta.y.translate > 0) {
                 // the bottom edge
-                return elem.offsetTop + elem.offsetHeight + dragOverArgs.delta.y.translate;
+                return elem.offsetTop + elem.offsetHeight + delta.y.translate;
             } else {
                 // the top edge
-                return elem.offsetTop + dragOverArgs.delta.y.translate;
+                return elem.offsetTop + delta.y.translate;
             }
         }
         // the middle

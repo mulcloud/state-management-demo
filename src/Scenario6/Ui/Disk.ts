@@ -1,11 +1,11 @@
 import * as Biz from '@triones/biz-kernel';
 import { Tower } from '@app/Scenario6/Ui/Tower';
+import { onDragStart, onDragEnd } from './React/AnimatedDiv';
 
 export class Disk extends Biz.MarkupView {
 
     public background: string;
     public height: string;
-    public cursor = 'pointer';
     public isDragging: boolean;
     public parent: Tower;
     // private originalParent: Tower;
@@ -16,8 +16,7 @@ export class Disk extends Biz.MarkupView {
         return this.isDragging ? 3: 1;
     }
 
-    @Biz.unmanaged
-    public onDragStart() {
+    public onDragStart: onDragStart = function() {
         // if (this.isDragging) {
         //     return;
         // }
@@ -25,8 +24,7 @@ export class Disk extends Biz.MarkupView {
         // this.originalParentDisks = Array.from(this.parent.disks) as any;
     }
 
-    @Biz.unmanaged
-    public onDragEnd() {
+    public onDragEnd: onDragEnd = function() {
         // if (this.cursor === 'not-allowed') {
         //     if (this.parent !== this.originalParent) {
         //         this.parent.removeDisk(this as any);
@@ -34,7 +32,6 @@ export class Disk extends Biz.MarkupView {
         //     }
         //     this.originalParent.disks = this.originalParentDisks as any;
         // }
-        this.cursor = 'pointer';
     }
 
     public static shouldSkipRender() {
