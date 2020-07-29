@@ -15,11 +15,6 @@ export class Disk extends Biz.MarkupView {
     private actionHistory: ActionHistory;
 
     @Biz.unmanaged
-    public get zIndex() {
-        return this.isDragging ? 3: 1;
-    }
-
-    @Biz.unmanaged
     public onDragStart() {
         this.actionHistory.beginAction();
     }
@@ -31,5 +26,10 @@ export class Disk extends Biz.MarkupView {
         } else {
             this.actionHistory.rollbackAction();
         }
+    }
+
+    @Biz.unmanaged
+    public get zIndex() {
+        return this.isDragging ? 3: 1;
     }
 }
