@@ -28,7 +28,7 @@ framer-motion 把复杂的拖拽和动画功能包装在简单的 api 之下。�
 
 AnimatedBox 是对 framer-motion 的进一步包装，额外提供了 onDragOver, onDragEnter, onDragExit 回调，并且给 onDropEnd 增加了 droppable 参数，以告知是否拖拽到了区域之外。
 
-# 基于 DOM 的拖拽计算
+# 简化布局相关的计算，直接拿 DOM 算位置就可以了
 
 framer-motion 的官方例子里（https://codesandbox.io/s/framer-motion-2-drag-to-reorder-fc4rt），拖拽中的状态计算是基于 react state 做的，这就要求把 DOM 的状态同步回 react，然后进行计算。
 
@@ -58,7 +58,7 @@ private static getDiskYCoordinate(elem: HTMLElement, draggingElement: HTMLElemen
 
 而 TSM 对于动画和拖拽的观点是，这些 DOM 上的坐标数据应该属于 DOM 自己管理。所以，我们在拖拽过程的计算直接使用 element.children 获得子元素，使用 offsetTop/offsetHeight 获得元素的位置。我们认为这样的计算更加直观，效率上也省掉了一次状态的复制。
 
-# 基于 Model 的位置重排
+# 同时享受 DOM 和 React 两种编程模型的好处
 
 当我们发现拖拽引起了位置的变化之后，重排仍然是通过修改 model 状态，触发 react 重渲染来完成的。这个直接使用 react 就很困难，因为计算位置的时候用的是 DOM，从 DOM 是无法反查到 react 组件的。也就是 DOM 状态和 react state 是完全隔离的两个世界。TSM 允许从 DOM 反查对应这个 DOM 元素的 model，通过 data-model-class 和 data-model-id 这两个html属性。
 
