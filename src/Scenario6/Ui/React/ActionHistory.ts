@@ -1,15 +1,11 @@
 import * as Biz from '@triones/biz-kernel';
-import { instantiate } from '@triones/tri-package';
-import { ReactHost } from '@app/React/Host/ReactHost';
-import { eventHandler } from '@triones/markup-shim-react';
 import { unmanaged } from '@triones/biz-kernel';
 
-@instantiate(ReactHost, { concurrent: true, disableSatellite: true })
+// ActionHistory is a generic implementation of undo/redo pattern
 export class ActionHistory extends Biz.MarkupView {
-
     public actionScene: Biz.Scene = Biz.newScene();
     public currentVersion: Biz.SceneVersion;
-    public actions: { name: string, version: Biz.SceneVersion }[] = [];
+    public actions: { name: string; version: Biz.SceneVersion }[] = [];
 
     @Biz.unmanaged
     public beginAction() {
@@ -29,11 +25,10 @@ export class ActionHistory extends Biz.MarkupView {
         Biz.restoreVersion(this.actionScene, this.currentVersion);
     }
 
-    @eventHandler({ useScopes: true })
     @unmanaged
-    public undo(scopes: Record<string, any>) {
-        this.currentVersion = scopes.entry.element.version;
-        this.actions = this.actions.slice(0, scopes.entry.index);
+    public undo(actionIndex: number) {
+        this.currentVersion = this.actions[actionIndex].version;
+        this.actions = this.actions.slice(0, actionIndex);
         Biz.restoreVersion(this.actionScene, this.currentVersion);
     }
 }
