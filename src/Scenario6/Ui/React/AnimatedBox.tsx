@@ -1,35 +1,47 @@
-import { motion, BoxDelta } from 'framer-motion';
+import { motion, BoxDelta, PanInfo } from 'framer-motion';
 import * as React from 'react';
 import { BindingState, useBindingState, SceneContext } from '@triones/markup-shim-react';
 import * as Biz from '@triones/biz-kernel';
 import styled from 'styled-components';
 
+type AnyPointerEvent = MouseEvent | TouchEvent | PointerEvent;
 const MotionDiv = motion.div;
 const styledComponents = new Map<string, any>();
 
-type Props = {
+export type Props = {
     isDragging?: BindingState<boolean>;
     droppableModelClass?: string;
     model?: Biz.Entity;
     style?: React.CSSProperties;
     staticStyle?: string;
-} & Parameters<typeof MotionDiv>[0];
+    onDragEnd?: onDragEnd;
+    onDragStart?: onDragStart;
+} & Omit<Parameters<typeof MotionDiv>[0], 'onDragEnd' | 'onDragStart'>;
 
-type Droppable = {
+export type Droppable = {
+    element: HTMLElement;
+    model: Biz.Entity & {
+        onDragEnter?: onDragEnter
+        onDragExit?: onDragExit
+        onDragOver?: onDragOver
+    };
+};
+
+export type Dragging = {
     element: HTMLElement;
     model: Biz.Entity;
 };
 
-type Dragging = {
-    element: HTMLElement;
-    model: Biz.Entity;
-};
-
-export type onDragStart = Props['onDragStart'];
-export type onDragEnd = Props['onDragEnd'];
-export type onDragExit = (args: { dragging: Dragging; droppable: Droppable }) => void;
-export type onDragEnter = (args: { dragging: Dragging; droppable: Droppable }) => void;
-export type onDragOver = (args: { dragging: Dragging; droppable: Droppable; delta: BoxDelta }) => void;
+export type onDragStartArgs = { event: AnyPointerEvent, info: PanInfo };
+export type onDragStart = (args: onDragStartArgs) => void;
+export type onDragEndArgs = { event: AnyPointerEvent, info: PanInfo, droppable?: Droppable };
+export type onDragEnd = (args: onDragEndArgs) => void;
+export type onDragExitArgs = { dragging: Dragging; droppable: Droppable };
+export type onDragExit = (args: onDragExitArgs) => void;
+export type onDragEnterArgs = { dragging: Dragging; droppable: Droppable };
+export type onDragEnter = (args: onDragEnterArgs) => void;
+export type onDragOverArgs = { dragging: Dragging; droppable: Droppable; delta: BoxDelta };
+export type onDragOver = (args: onDragOverArgs) => void;
 
 export const AnimatedBox = React.forwardRef((props: Props, ref) => {
     const [isDragging, setIsDragging] = useBindingState(props.isDragging);
@@ -76,16 +88,16 @@ export const AnimatedBox = React.forwardRef((props: Props, ref) => {
                 droppableModelClass,
             );
             if (draggingOver?.model !== droppable?.model) {
-                if (draggingOver?.model) {
-                    (draggingOver.model as any).onDragExit({ droppable, dragging });
+                if (draggingOver?.model && draggingOver.model.onDragExit) {
+                    draggingOver.model.onDragExit({ droppable: draggingOver, dragging });
                 }
                 setDraggingOver(droppable);
-                if (droppable?.model) {
-                    (droppable.model as any).onDragEnter({ droppable, dragging });
+                if (droppable?.model && droppable.model.onDragEnter) {
+                    droppable.model.onDragEnter({ droppable, dragging });
                 }
             }
-            if (droppable?.model) {
-                (droppable.model as any).onDragOver.call(droppable.model, { droppable, dragging, delta });
+            if (droppable?.model && droppable.model.onDragOver) {
+                droppable.model.onDragOver.call(droppable.model, { droppable, dragging, delta });
             }
         };
     }
@@ -106,7 +118,7 @@ export const AnimatedBox = React.forwardRef((props: Props, ref) => {
                 props.drag
                     ? (event, info) => {
                           if (onDragStart && !isDragging) {
-                              onDragStart(event, info);
+                              onDragStart({ event, info });
                           }
                           setIsDragging(true);
                       }
@@ -118,7 +130,7 @@ export const AnimatedBox = React.forwardRef((props: Props, ref) => {
                           setIsDragging(false);
                           setDraggingOver(undefined);
                           if (onDragEnd) {
-                              onDragEnd(event, info);
+                              onDragEnd({ event, info, droppable: draggingOver });
                           }
                       }
                     : undefined

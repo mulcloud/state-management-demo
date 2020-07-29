@@ -1,7 +1,7 @@
 import * as Biz from '@triones/biz-kernel';
 import { Disk } from '@app/Scenario6/Ui/Disk';
 import { BoxDelta } from 'framer-motion';
-import { onDragOver, onDragEnter, onDragExit } from './React/AnimatedBox';
+import { onDragOverArgs } from './React/AnimatedBox';
 
 export class Tower extends Biz.MarkupView {
 
@@ -14,42 +14,16 @@ export class Tower extends Biz.MarkupView {
 
     public onBegin() {
         this.disks = [
-            this.create(Disk, { background: '#FF008C', height: '3em' }),
-            this.create(Disk, { background: '#D309E1', height: '5em' }),
-            this.create(Disk, { background: '#9C1AFF', height: '6em' }),
-            this.create(Disk, { background: '#7700FF', height: '4em' }),
+            this.scene.add(Disk, { background: '#FF008C', height: '3em', parent: this as any }),
+            this.scene.add(Disk, { background: '#D309E1', height: '5em', parent: this as any }),
+            this.scene.add(Disk, { background: '#9C1AFF', height: '6em', parent: this as any }),
+            this.scene.add(Disk, { background: '#7700FF', height: '4em', parent: this as any }),
         ];
-    } 
-
-    public onDragEnter: onDragEnter = function(this: Tower, { dragging }) {
-        const disk = dragging.model as Disk;
-        if (disk.parent && disk.parent !== this as any) {
-            disk.parent.removeDisk(disk);
-        }
-        disk.parent = this as any;
     }
 
-    public onDragExit: onDragExit = function() {
-    }
-    
-    public onDragOver: onDragOver = function(this: Tower, { dragging, droppable, delta }) {
-        const unsorted = Array.from(droppable.element.children);
-        if (!unsorted.includes(dragging.element)) {
-            unsorted.push(dragging.element);
-        }
-        const sorted = (unsorted as HTMLDivElement[]).sort((a, b) => {
-            return Tower.getY(a, dragging.element, delta) - Tower.getY(b, dragging.element, delta);
-        });
-        const sortedDisks = [];
-        let changed = false;
-        for (const [i, elem] of sorted.entries()) {
-            if (!this.disks[i] || this.disks[i].id !== elem.dataset.modelId!) {
-                changed = true;
-            }
-            sortedDisks.push(Biz.getSceneMemEntity(this.scene, Disk, elem.dataset.modelId!)!);
-        }
-        if (changed) {
-            this.disks = sortedDisks;
+    public onEnd() {
+        for (const disk of this.disks) {
+            this.scene.delete(disk);
         }
     }
 
@@ -58,7 +32,34 @@ export class Tower extends Biz.MarkupView {
         this.disks = this.disks.filter(e => e !== disk);
     }
 
-    private static getY(elem: HTMLElement, draggingElement: HTMLElement, delta: BoxDelta) {
+    @Biz.unmanaged
+    public onDragOver({ dragging, droppable, delta }: onDragOverArgs) {
+        const unsorted = Array.from(droppable.element.children);
+        if (!unsorted.includes(dragging.element)) {
+            unsorted.push(dragging.element);
+        }
+        const sorted = (unsorted as HTMLDivElement[]).sort((a, b) => {
+            return Tower.getDiskYCoordinate(a, dragging.element, delta) - Tower.getDiskYCoordinate(b, dragging.element, delta);
+        });
+        const sortedDisks = [];
+        let changed = false;
+        for (const [i, elem] of sorted.entries()) {
+            if (!this.disks[i] || this.disks[i].id !== elem.dataset.modelId!) {
+                changed = true;
+            }
+            const disk = Biz.getSceneMemEntity(this.scene, Disk, elem.dataset.modelId!);
+            if (disk.parent !== this as any) {
+                disk.parent.removeDisk(disk);
+                disk.parent = this as any;
+            }
+            sortedDisks.push(disk);
+        }
+        if (changed) {
+            this.disks = sortedDisks;
+        }
+    }
+
+    private static getDiskYCoordinate(elem: HTMLElement, draggingElement: HTMLElement, delta: BoxDelta) {
         if (elem === draggingElement) {
             if (delta.y.translate > 0) {
                 // the bottom edge

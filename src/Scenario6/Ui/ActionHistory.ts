@@ -12,16 +12,21 @@ export class ActionHistory extends Biz.MarkupView {
     public actions: { name: string, version: Biz.SceneVersion }[] = [];
 
     @Biz.unmanaged
-    public startAction() {
+    public beginAction() {
         if (!this.currentVersion) {
             this.currentVersion = Biz.createVersion(this.actionScene);
         }
     }
 
     @Biz.unmanaged
-    public endAction() {
+    public commitAction() {
         this.actions.push({ name: `action ${this.actions.length}`, version: this.currentVersion });
         this.currentVersion = Biz.createVersion(this.actionScene);
+    }
+
+    @Biz.unmanaged
+    public rollbackAction() {
+        Biz.restoreVersion(this.actionScene, this.currentVersion);
     }
 
     @eventHandler({ useScopes: true })
