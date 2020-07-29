@@ -1,14 +1,17 @@
 <import from="@app/Scenario6/Ui/React/ActionHistory"/>
 <import from="@app/Scenario6/Ui/ActionPanel"/>
+<import component="AnimateSharedLayout" from="framer-motion"/>
 <import from="@app/Scenario6/Ui/Tower"/>
-<template #default>
-    <ActionHistory :="actionHistory">
+<template #default>           
+    <AnimateSharedLayout>
         <TowerRow>
-            <Tower/>
-            <Tower/>
+            <ActionHistory :="actionHistory">
+                <Tower />
+                <Tower />
+            </ActionHistory>
             <ActionPanel :actionHistory="actionHistory" />
         </TowerRow>
-    </ActionHistory>
+    </AnimateSharedLayout>
 </template>
 <style>
     div.TowerRow {
@@ -18,8 +21,7 @@
         display: flex;
 
         & div {
-           margin: 1em; 
+            margin: 1em;
         }
     }
 </style>
-

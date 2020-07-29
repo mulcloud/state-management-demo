@@ -14,11 +14,6 @@ export class Disk extends Biz.MarkupView {
     @context(ActionHistoryContext)
     private actionHistory: ActionHistory;
 
-    public static shouldSkipRender() {
-        // required to show the animation
-        return false;
-    }
-
     @Biz.unmanaged
     public get zIndex() {
         return this.isDragging ? 3: 1;

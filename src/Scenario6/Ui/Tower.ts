@@ -7,11 +7,6 @@ export class Tower extends Biz.MarkupView {
 
     public disks: Disk[] = [];
     
-    public static shouldSkipRender() {
-        // required to show the animation
-        return false;
-    }
-
     public onBegin() {
         this.disks = [
             this.scene.add(Disk, { background: '#FF008C', height: '3em', parent: this as any }),
